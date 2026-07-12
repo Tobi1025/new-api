@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SectionPageLayout } from '@/components/layout'
@@ -63,11 +63,13 @@ export function Wallet(props: WalletProps) {
   const [user, setUser] = useState<UserWalletData | null>(null)
   const [userLoading, setUserLoading] = useState(true)
   const [topupAmount, setTopupAmount] = useState(0)
+  const topupAmountInitialized = useRef(false)
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null)
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod>()
   const [paymentLoading, setPaymentLoading] = useState<string | null>(null)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [confirmPaymentAmount, setConfirmPaymentAmount] = useState(0)
   const [transferDialogOpen, setTransferDialogOpen] = useState(false)
   const [billingDialogOpen, setBillingDialogOpen] = useState(false)
   const [redemptionCode, setRedemptionCode] = useState('')
@@ -134,7 +136,8 @@ export function Wallet(props: WalletProps) {
 
   // Initialize topup amount when topup info is loaded
   useEffect(() => {
-    if (topupInfo && topupAmount === 0) {
+    if (topupInfo && !topupAmountInitialized.current) {
+      topupAmountInitialized.current = true
       const minTopup = getMinTopupAmount(topupInfo)
       setTopupAmount(minTopup)
 
@@ -142,7 +145,7 @@ export function Wallet(props: WalletProps) {
       const defaultPaymentType = getDefaultPaymentType(topupInfo)
       calculatePaymentAmount(minTopup, defaultPaymentType)
     }
-  }, [topupInfo, topupAmount, calculatePaymentAmount])
+  }, [topupInfo, calculatePaymentAmount])
 
   // Get current payment type (selected or default)
   const getCurrentPaymentType = useCallback(() => {
@@ -176,7 +179,11 @@ export function Wallet(props: WalletProps) {
       }
 
       // Calculate payment amount and show confirmation dialog
-      await calculatePaymentAmount(topupAmount, method.type)
+      const calculatedAmount = await calculatePaymentAmount(
+        topupAmount,
+        method.type
+      )
+      setConfirmPaymentAmount(calculatedAmount)
       setConfirmDialogOpen(true)
     } finally {
       setPaymentLoading(null)
@@ -334,12 +341,11 @@ export function Wallet(props: WalletProps) {
         onOpenChange={setConfirmDialogOpen}
         onConfirm={handlePaymentConfirm}
         topupAmount={topupAmount}
-        paymentAmount={paymentAmount}
+        paymentAmount={confirmPaymentAmount || paymentAmount}
         paymentMethod={selectedPaymentMethod}
         calculating={calculating}
         processing={processing || pancakeProcessing}
         discountRate={getDiscountRate()}
-        usdExchangeRate={effectiveUsdExchangeRate}
       />
 
       <TransferDialog
