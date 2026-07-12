@@ -34,13 +34,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import {
-  formatCurrencyFromUSD,
-  formatLocalCurrencyAmount,
-} from '@/lib/currency'
+import { formatCurrencyFromUSD } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 
 import {
+  formatEpayCurrency,
   getDiscountLabel,
   getPaymentIcon,
   getMinTopupAmount,
@@ -298,11 +296,11 @@ export function RechargeFormCard({
                             )}
                           </div>
                           <div className='text-muted-foreground mt-1.5 w-full text-xs sm:mt-2'>
-                            Pay {formatLocalCurrencyAmount(actualPrice)}
+                            Pay {formatEpayCurrency(actualPrice)}
                             {hasDiscount && savedAmount > 0 && (
                               <span className='text-green-600'>
                                 {' '}
-                                • Save {formatLocalCurrencyAmount(savedAmount)}
+                                • Save {formatEpayCurrency(savedAmount)}
                               </span>
                             )}
                           </div>
@@ -348,7 +346,7 @@ export function RechargeFormCard({
                       <Skeleton className='h-5 w-16' />
                     ) : (
                       <span className='text-sm font-semibold'>
-                        {formatLocalCurrencyAmount(paymentAmount)}
+                        {formatEpayCurrency(paymentAmount)}
                       </span>
                     )}
                   </div>
