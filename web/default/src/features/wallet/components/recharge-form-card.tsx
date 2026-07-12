@@ -120,8 +120,8 @@ export function RechargeFormCard({
 
   const handleAmountChange = (value: string) => {
     setLocalAmount(value)
-    const numValue = parseInt(value) || 0
-    if (numValue >= 0) {
+    const numValue = Number(value)
+    if (Number.isFinite(numValue) && numValue >= 0) {
       onTopupAmountChange(numValue)
     }
   }
@@ -288,6 +288,8 @@ export function RechargeFormCard({
                     value={localAmount}
                     onChange={(e) => handleAmountChange(e.target.value)}
                     min={minTopup}
+                    step='0.001'
+                    inputMode='decimal'
                     placeholder={`Minimum ${minTopup}`}
                     className='h-9 text-base sm:h-10 sm:text-lg'
                   />

@@ -259,6 +259,8 @@ export interface TopupRecord {
   user_id: number
   /** Topup amount (quota) */
   amount: number
+  /** Exact display amount for fractional payment orders */
+  display_amount?: number
   /** Payment amount (actual money paid) */
   money: number
   /** Trade/order number */

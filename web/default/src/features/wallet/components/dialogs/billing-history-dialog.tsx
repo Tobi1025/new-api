@@ -241,11 +241,16 @@ export function BillingHistoryDialog({
                             {t('Amount')}
                           </Label>
                           <div className='text-sm font-semibold'>
-                            {formatCurrencyFromUSD(record.amount, {
-                              digitsLarge: 2,
-                              digitsSmall: 2,
-                              abbreviate: false,
-                            })}
+                            {formatCurrencyFromUSD(
+                              record.display_amount && record.display_amount > 0
+                                ? record.display_amount
+                                : record.amount,
+                              {
+                                digitsLarge: 2,
+                                digitsSmall: 2,
+                                abbreviate: false,
+                              }
+                            )}
                           </div>
                         </div>
                         <div className='space-y-1'>

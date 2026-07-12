@@ -14,7 +14,10 @@ var CustomCallbackAddress = ""
 var EpayId = ""
 var EpayKey = ""
 var Price = 7.3
-var MinTopUp = 1
+
+// MinTopUp is the minimum user-facing top-up amount. It is a float so EPay
+// can accept legitimate fractional USD payments such as 0.10.
+var MinTopUp = 1.0
 var USDExchangeRate = 7.3
 
 var PayMethods = []map[string]string{

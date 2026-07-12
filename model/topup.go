@@ -12,9 +12,15 @@ import (
 )
 
 type TopUp struct {
-	Id              int     `json:"id"`
-	UserId          int     `json:"user_id" gorm:"index"`
-	Amount          int64   `json:"amount"`
+	Id     int   `json:"id"`
+	UserId int   `json:"user_id" gorm:"index"`
+	Amount int64 `json:"amount"`
+	// DisplayAmount preserves fractional top-up amounts for payment history.
+	// Amount remains an integer for compatibility with existing providers.
+	DisplayAmount float64 `json:"display_amount" gorm:"default:0"`
+	// Quota is the exact integer quota to credit for fractional EPay orders.
+	// A zero value means the legacy Amount-based credit calculation applies.
+	Quota           int64   `json:"quota" gorm:"default:0"`
 	Money           float64 `json:"money"`
 	TradeNo         string  `json:"trade_no" gorm:"unique;type:varchar(255);index"`
 	PaymentMethod   string  `json:"payment_method" gorm:"type:varchar(50)"`
@@ -354,6 +360,8 @@ func ManualCompleteTopUp(tradeNo string, callerIp string) error {
 		if topUp.PaymentProvider == PaymentProviderStripe {
 			dQuotaPerUnit := decimal.NewFromFloat(common.QuotaPerUnit)
 			quotaToAdd = int(decimal.NewFromFloat(topUp.Money).Mul(dQuotaPerUnit).IntPart())
+		} else if topUp.PaymentProvider == PaymentProviderEpay && topUp.Quota > 0 {
+			quotaToAdd = int(topUp.Quota)
 		} else {
 			dAmount := decimal.NewFromInt(topUp.Amount)
 			dQuotaPerUnit := decimal.NewFromFloat(common.QuotaPerUnit)
