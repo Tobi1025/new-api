@@ -62,6 +62,20 @@ export function formatCurrency(amount: number | string): string {
 }
 
 /**
+ * Format an EPay payment amount. Alipay and WeChat Pay through the configured
+ * EPay gateway settle in CNY, regardless of the user's quota display mode.
+ */
+export function formatEpayPaymentAmount(
+  amount: number | string | null | undefined
+): string {
+  const numeric =
+    typeof amount === 'number' ? amount : Number.parseFloat(String(amount))
+  if (!Number.isFinite(numeric)) return '-'
+
+  return `¥${formatCurrency(numeric)}`
+}
+
+/**
  * Get discount label for display (e.g., "20% OFF")
  */
 export function getDiscountLabel(discount: number): string {

@@ -104,6 +104,7 @@ const paymentSchema = z.object({
   EpayKey: z.string(),
   Price: z.coerce.number().min(0),
   MinTopUp: z.coerce.number().min(0),
+	CNYMinTopUp: z.coerce.number().min(0),
   CustomCallbackAddress: z
     .string()
     .refine(
@@ -120,6 +121,15 @@ const paymentSchema = z.object({
     }
   }),
   AmountOptions: z.string().superRefine((value, ctx) => {
+    const error = getJsonError(value, (parsed) => Array.isArray(parsed))
+    if (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: error,
+      })
+    }
+  }),
+  CNYAmountOptions: z.string().superRefine((value, ctx) => {
     const error = getJsonError(value, (parsed) => Array.isArray(parsed))
     if (error) {
       ctx.addIssue({
@@ -241,6 +251,8 @@ export function PaymentSettingsSection({
   const [payMethodsVisualMode, setPayMethodsVisualMode] = React.useState(true)
   const [amountOptionsVisualMode, setAmountOptionsVisualMode] =
     React.useState(true)
+  const [cnyAmountOptionsVisualMode, setCNYAmountOptionsVisualMode] =
+    React.useState(true)
   const [amountDiscountVisualMode, setAmountDiscountVisualMode] =
     React.useState(true)
   const [creemProductsVisualMode, setCreemProductsVisualMode] =
@@ -354,6 +366,7 @@ export function PaymentSettingsSection({
       ...initialFormValues,
       PayMethods: formatJsonForEditor(initialFormValues.PayMethods),
       AmountOptions: formatJsonForEditor(initialFormValues.AmountOptions),
+      CNYAmountOptions: formatJsonForEditor(initialFormValues.CNYAmountOptions),
       AmountDiscount: formatJsonForEditor(initialFormValues.AmountDiscount),
       CreemProducts: formatJsonForEditor(initialFormValues.CreemProducts),
     },
@@ -411,6 +424,7 @@ export function PaymentSettingsSection({
       ...parsedDefaults,
       PayMethods: formatJsonForEditor(parsedDefaults.PayMethods),
       AmountOptions: formatJsonForEditor(parsedDefaults.AmountOptions),
+      CNYAmountOptions: formatJsonForEditor(parsedDefaults.CNYAmountOptions),
       AmountDiscount: formatJsonForEditor(parsedDefaults.AmountDiscount),
       CreemProducts: formatJsonForEditor(parsedDefaults.CreemProducts),
     })
@@ -423,9 +437,11 @@ export function PaymentSettingsSection({
       EpayKey: values.EpayKey.trim(),
       Price: values.Price,
       MinTopUp: values.MinTopUp,
+	  CNYMinTopUp: values.CNYMinTopUp,
       CustomCallbackAddress: removeTrailingSlash(values.CustomCallbackAddress),
       PayMethods: values.PayMethods.trim(),
       AmountOptions: values.AmountOptions.trim(),
+      CNYAmountOptions: values.CNYAmountOptions.trim(),
       AmountDiscount: values.AmountDiscount.trim(),
       StripeApiSecret: values.StripeApiSecret.trim(),
       StripeWebhookSecret: values.StripeWebhookSecret.trim(),
@@ -465,11 +481,13 @@ export function PaymentSettingsSection({
       EpayKey: initialRef.current.EpayKey.trim(),
       Price: initialRef.current.Price,
       MinTopUp: initialRef.current.MinTopUp,
+	  CNYMinTopUp: initialRef.current.CNYMinTopUp,
       CustomCallbackAddress: removeTrailingSlash(
         initialRef.current.CustomCallbackAddress
       ),
       PayMethods: initialRef.current.PayMethods.trim(),
       AmountOptions: initialRef.current.AmountOptions.trim(),
+      CNYAmountOptions: initialRef.current.CNYAmountOptions.trim(),
       AmountDiscount: initialRef.current.AmountDiscount.trim(),
       StripeApiSecret: initialRef.current.StripeApiSecret.trim(),
       StripeWebhookSecret: initialRef.current.StripeWebhookSecret.trim(),
@@ -528,6 +546,13 @@ export function PaymentSettingsSection({
       updates.push({ key: 'MinTopUp', value: sanitized.MinTopUp })
     }
 
+    if (sanitized.CNYMinTopUp !== initial.CNYMinTopUp) {
+      updates.push({
+        key: 'payment_setting.cny_min_topup',
+        value: sanitized.CNYMinTopUp,
+      })
+    }
+
     if (sanitized.CustomCallbackAddress !== initial.CustomCallbackAddress) {
       updates.push({
         key: 'CustomCallbackAddress',
@@ -549,6 +574,16 @@ export function PaymentSettingsSection({
       updates.push({
         key: 'payment_setting.amount_options',
         value: sanitized.AmountOptions,
+      })
+    }
+
+    if (
+      normalizeJsonForComparison(sanitized.CNYAmountOptions) !==
+      normalizeJsonForComparison(initial.CNYAmountOptions)
+    ) {
+      updates.push({
+        key: 'payment_setting.cny_amount_options',
+        value: sanitized.CNYAmountOptions,
       })
     }
 
@@ -905,7 +940,7 @@ export function PaymentSettingsSection({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          {t('Price (local currency / USD)')}
+                          {t('Price (payment currency / USD balance)')}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -941,6 +976,30 @@ export function PaymentSettingsSection({
                         </FormControl>
                         <FormDescription>
                           {t('Smallest USD amount users can recharge (Epay)')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='CNYMinTopUp'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('Minimum top-up (CNY)')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            step='0.01'
+                            min={0}
+                            {...safeNumberFieldProps(field)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t(
+                            'Smallest CNY amount users can recharge when the display currency is CNY (Epay)'
+                          )}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -1057,6 +1116,65 @@ export function PaymentSettingsSection({
                         </FormControl>
                         <FormDescription>
                           {t('Preset recharge amounts (JSON array)')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='CNYAmountOptions'
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className='mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                          <FormLabel>{t('CNY top-up amount options')}</FormLabel>
+                          <Button
+                            type='button'
+                            variant='outline'
+                            size='sm'
+                            onClick={() =>
+                              setCNYAmountOptionsVisualMode(
+                                !cnyAmountOptionsVisualMode
+                              )
+                            }
+                            className='w-full sm:w-auto'
+                          >
+                            {cnyAmountOptionsVisualMode ? (
+                              <>
+                                <Code2 className='mr-2 h-3 w-3' />
+                                {t('JSON Editor')}
+                              </>
+                            ) : (
+                              <>
+                                <Eye className='mr-2 h-3 w-3' />
+                                {t('Visual Editor')}
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                        <FormControl>
+                          {cnyAmountOptionsVisualMode ? (
+                            <AmountOptionsVisualEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                              currencySymbol='¥'
+                            />
+                          ) : (
+                            <Textarea
+                              rows={4}
+                              placeholder='[10, 20, 50, 100]'
+                              {...field}
+                              onChange={(event) =>
+                                field.onChange(event.target.value)
+                              }
+                            />
+                          )}
+                        </FormControl>
+                        <FormDescription>
+                          {t(
+                            'Preset amounts shown only when the display currency is CNY.'
+                          )}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

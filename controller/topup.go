@@ -112,11 +112,12 @@ func GetTopUpInfo(c *gin.Context) {
 		}(),
 		"creem_products":          setting.CreemProducts,
 		"pay_methods":             payMethods,
-		"min_topup":               operation_setting.MinTopUp,
+		"min_topup":               operation_setting.GetTopupMinAmount(),
+		"display_min_topup":       operation_setting.GetTopupDisplayMinAmount(),
 		"stripe_min_topup":        setting.StripeMinTopUp,
 		"waffo_min_topup":         setting.WaffoMinTopUp,
 		"waffo_pancake_min_topup": setting.WaffoPancakeMinTopUp,
-		"amount_options":          operation_setting.GetPaymentSetting().AmountOptions,
+		"amount_options":          operation_setting.GetTopupAmountOptions(),
 		"discount":                operation_setting.GetPaymentSetting().AmountDiscount,
 		"topup_link":              common.TopUpLink,
 	}
@@ -148,8 +149,8 @@ func GetEpayClient() *epay.Client {
 
 func getPayMoney(amount decimal.Decimal, group string) decimal.Decimal {
 	dAmount := amount
-	// 充值金额以“展示类型”为准：
-	// - USD/CNY: 前端传 amount 为金额单位；TOKENS: 前端传 tokens，需要换成 USD 金额
+	// 充值金额使用内部 USD 单位：人民币展示模式会在前端换算后提交；
+	// TOKENS 模式则需要在此继续换算为 USD 金额。
 	if operation_setting.GetQuotaDisplayType() == operation_setting.QuotaDisplayTypeTokens {
 		dQuotaPerUnit := decimal.NewFromFloat(common.QuotaPerUnit)
 		dAmount = dAmount.Div(dQuotaPerUnit)
@@ -174,7 +175,7 @@ func getPayMoney(amount decimal.Decimal, group string) decimal.Decimal {
 }
 
 func getMinTopup() decimal.Decimal {
-	minTopup := decimal.NewFromFloat(operation_setting.MinTopUp)
+	minTopup := decimal.NewFromFloat(operation_setting.GetTopupMinAmount())
 	if operation_setting.GetQuotaDisplayType() == operation_setting.QuotaDisplayTypeTokens {
 		minTopup = minTopup.Mul(decimal.NewFromFloat(common.QuotaPerUnit))
 	}
@@ -436,7 +437,7 @@ func RequestAmount(c *gin.Context) {
 		return
 	}
 	payMoney := getPayMoney(req.Amount, group)
-	if payMoney.LessThanOrEqual(decimal.NewFromFloat(0.01)) {
+	if payMoney.LessThan(decimal.NewFromFloat(0.01)) {
 		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "充值金额过低"})
 		return
 	}

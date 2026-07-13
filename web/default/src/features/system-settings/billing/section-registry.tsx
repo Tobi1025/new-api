@@ -141,6 +141,8 @@ const BILLING_SECTIONS = [
           CustomCallbackAddress: settings.CustomCallbackAddress,
           PayMethods: settings.PayMethods,
           AmountOptions: settings['payment_setting.amount_options'],
+          CNYAmountOptions: settings['payment_setting.cny_amount_options'],
+          CNYMinTopUp: settings['payment_setting.cny_min_topup'] ?? 10,
           AmountDiscount: settings['payment_setting.amount_discount'],
           StripeApiSecret: settings.StripeApiSecret,
           StripeWebhookSecret: settings.StripeWebhookSecret,

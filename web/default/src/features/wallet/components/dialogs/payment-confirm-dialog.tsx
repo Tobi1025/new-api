@@ -36,7 +36,7 @@ import {
 } from '@/lib/currency'
 
 import { DEFAULT_DISCOUNT_RATE } from '../../constants'
-import { getPaymentIcon } from '../../lib'
+import { formatEpayPaymentAmount, getPaymentIcon, isStripePayment } from '../../lib'
 import type { PaymentMethod } from '../../types'
 
 interface PaymentConfirmDialogProps {
@@ -66,6 +66,9 @@ export function PaymentConfirmDialog({
   const hasDiscount = discountRate > 0 && discountRate < 1 && paymentAmount > 0
   const originalAmount = hasDiscount ? paymentAmount / discountRate : 0
   const discountAmount = hasDiscount ? originalAmount - paymentAmount : 0
+  const formatPaymentAmount = isStripePayment(paymentMethod?.type ?? '')
+    ? formatLocalCurrencyAmount
+    : formatEpayPaymentAmount
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -102,11 +105,11 @@ export function PaymentConfirmDialog({
             ) : (
               <div className='flex items-baseline gap-2'>
                 <span className='text-2xl font-semibold'>
-                  {formatLocalCurrencyAmount(paymentAmount)}
+                  {formatPaymentAmount(paymentAmount)}
                 </span>
                 {hasDiscount && (
                   <span className='text-muted-foreground text-sm line-through'>
-                    {formatLocalCurrencyAmount(originalAmount)}
+                    {formatPaymentAmount(originalAmount)}
                   </span>
                 )}
               </div>
@@ -118,7 +121,7 @@ export function PaymentConfirmDialog({
               <div className='flex items-center justify-between text-sm'>
                 <span className='text-muted-foreground'>{t('You save')}</span>
                 <span className='font-semibold text-green-600'>
-                  {formatLocalCurrencyAmount(discountAmount)}
+                  {formatPaymentAmount(discountAmount)}
                 </span>
               </div>
             </div>

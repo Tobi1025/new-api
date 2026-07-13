@@ -36,7 +36,6 @@ import {
 } from '@/components/ui/tooltip'
 import {
   formatCurrencyFromUSD,
-  formatLocalCurrencyAmount,
 } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 
@@ -44,7 +43,9 @@ import {
   getDiscountLabel,
   getPaymentIcon,
   getMinTopupAmount,
+	getDisplayMinTopupAmount,
   calculatePresetPricing,
+  formatEpayPaymentAmount,
 } from '../lib'
 import type {
   PaymentMethod,
@@ -74,6 +75,7 @@ interface RechargeFormCardProps {
   loading?: boolean
   priceRatio?: number
   usdExchangeRate?: number
+	isCNYDisplay?: boolean
   onOpenBilling?: () => void
   creemProducts?: CreemProduct[]
   enableCreemTopup?: boolean
@@ -83,6 +85,15 @@ interface RechargeFormCardProps {
   waffoMinTopup?: number
   onWaffoMethodSelect?: (method: WaffoPayMethod, index: number) => void
   enableWaffoPancakeTopup?: boolean
+}
+
+function formatDisplayInputAmount(
+  amount: number,
+  isCNYDisplay: boolean,
+  usdExchangeRate: number
+): string {
+  const displayAmount = isCNYDisplay ? amount * usdExchangeRate : amount
+  return Number(displayAmount.toFixed(6)).toString()
 }
 
 export function RechargeFormCard({
@@ -104,6 +115,7 @@ export function RechargeFormCard({
   loading,
   priceRatio = 1,
   usdExchangeRate = 1,
+	isCNYDisplay = false,
   onOpenBilling,
   creemProducts,
   enableCreemTopup,
@@ -115,14 +127,18 @@ export function RechargeFormCard({
   enableWaffoPancakeTopup,
 }: RechargeFormCardProps) {
   const { t } = useTranslation()
-  const [localAmount, setLocalAmount] = useState(topupAmount.toString())
+  const [localAmount, setLocalAmount] = useState(
+	formatDisplayInputAmount(topupAmount, isCNYDisplay, usdExchangeRate)
+  )
   const hasUserEditedAmount = useRef(false)
 
   useEffect(() => {
     if (!hasUserEditedAmount.current) {
-      setLocalAmount(topupAmount.toString())
+      setLocalAmount(
+        formatDisplayInputAmount(topupAmount, isCNYDisplay, usdExchangeRate)
+      )
     }
-  }, [topupAmount])
+  }, [topupAmount, isCNYDisplay, usdExchangeRate])
 
   const handleAmountChange = (value: string) => {
     // Chinese input methods can emit full-width punctuation for decimal input.
@@ -136,7 +152,11 @@ export function RechargeFormCard({
     setLocalAmount(normalizedValue)
     const numValue = Number(normalizedValue)
     if (Number.isFinite(numValue) && numValue >= 0) {
-      onTopupAmountChange(numValue)
+		onTopupAmountChange(
+			isCNYDisplay && usdExchangeRate > 0
+				? numValue / usdExchangeRate
+				: numValue
+		)
     }
   }
 
@@ -162,7 +182,9 @@ export function RechargeFormCard({
 
   const handlePresetSelect = (preset: PresetAmount) => {
     hasUserEditedAmount.current = false
-    setLocalAmount(preset.value.toString())
+    setLocalAmount(
+      formatDisplayInputAmount(preset.value, isCNYDisplay, usdExchangeRate)
+    )
     onSelectPreset(preset)
   }
 
@@ -177,6 +199,7 @@ export function RechargeFormCard({
   const hasWaffoPaymentMethods =
     Array.isArray(waffoPayMethods) && waffoPayMethods.length > 0
   const minTopup = getMinTopupAmount(topupInfo)
+	const displayMinTopup = getDisplayMinTopupAmount(topupInfo)
   const redemptionEnabled = topupInfo?.enable_redemption !== false
 
   if (loading) {
@@ -298,11 +321,11 @@ export function RechargeFormCard({
                             )}
                           </div>
                           <div className='text-muted-foreground mt-1.5 w-full text-xs sm:mt-2'>
-                            Pay {formatLocalCurrencyAmount(actualPrice)}
+                            Pay {formatEpayPaymentAmount(actualPrice)}
                             {hasDiscount && savedAmount > 0 && (
                               <span className='text-green-600'>
                                 {' '}
-                                • Save {formatLocalCurrencyAmount(savedAmount)}
+                                • Save {formatEpayPaymentAmount(savedAmount)}
                               </span>
                             )}
                           </div>
@@ -318,7 +341,9 @@ export function RechargeFormCard({
                   htmlFor='topup-amount'
                   className='text-muted-foreground text-xs font-medium tracking-wider uppercase'
                 >
-                  {t('Custom Amount')} (USD)
+                  {t(
+                    isCNYDisplay ? 'Custom Amount (CNY)' : 'Custom Amount (USD)'
+                  )}
                 </Label>
                 <div className='grid grid-cols-[minmax(0,1fr)_minmax(110px,0.55fr)] gap-2 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center'>
                   <div className='relative'>
@@ -326,7 +351,7 @@ export function RechargeFormCard({
                       aria-hidden='true'
                       className='text-muted-foreground pointer-events-none absolute inset-y-0 left-3 flex items-center text-base sm:text-lg'
                     >
-                      $
+					  {isCNYDisplay ? '¥' : '$'}
                     </span>
                     <Input
                       id='topup-amount'
@@ -336,7 +361,7 @@ export function RechargeFormCard({
                       onKeyDown={handleAmountKeyDown}
                       inputMode='decimal'
                       autoComplete='off'
-                      placeholder={`Minimum ${minTopup}`}
+                      placeholder={`Minimum ${displayMinTopup}`}
                       className='h-9 pl-7 text-base sm:h-10 sm:text-lg'
                     />
                   </div>
@@ -348,7 +373,7 @@ export function RechargeFormCard({
                       <Skeleton className='h-5 w-16' />
                     ) : (
                       <span className='text-sm font-semibold'>
-                        {formatLocalCurrencyAmount(paymentAmount)}
+                        {formatEpayPaymentAmount(paymentAmount)}
                       </span>
                     )}
                   </div>

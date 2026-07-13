@@ -142,6 +142,21 @@ export function getMinTopupAmount(topupInfo: TopupInfo | null): number {
 }
 
 /**
+ * Get the minimum topup amount in the active display currency.
+ */
+export function getDisplayMinTopupAmount(topupInfo: TopupInfo | null): number {
+	if (!topupInfo) {
+		return DEFAULT_MIN_TOPUP
+	}
+
+	if (topupInfo.enable_online_topup) {
+		return topupInfo.display_min_topup ?? topupInfo.min_topup
+	}
+
+	return getMinTopupAmount(topupInfo)
+}
+
+/**
  * Generate preset amounts based on minimum topup
  */
 export function generatePresetAmounts(minAmount: number): PresetAmount[] {

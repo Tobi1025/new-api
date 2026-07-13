@@ -21,7 +21,7 @@ import i18next from 'i18next'
 import { toast } from 'sonner'
 
 import { updateSystemOption } from '../api'
-import type { UpdateOptionRequest } from '../types'
+import type { SystemOptionsResponse, UpdateOptionRequest } from '../types'
 
 // Configuration keys that require status refresh
 const STATUS_RELATED_KEYS = [
@@ -44,14 +44,39 @@ export function useUpdateOption() {
 
   return useMutation({
     mutationFn: (request: UpdateOptionRequest) => updateSystemOption(request),
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
       if (data.success) {
-        // Always refresh system-options
-        queryClient.invalidateQueries({ queryKey: ['system-options'] })
+        // Keep forms in sync immediately, then verify against the server.
+        queryClient.setQueryData<SystemOptionsResponse>(
+          ['system-options'],
+          (current) => {
+            if (!current) return current
+
+            const option = {
+              key: variables.key,
+              value: String(variables.value),
+            }
+            const existingIndex = current.data.findIndex(
+              (item) => item.key === variables.key
+            )
+            const nextData = [...current.data]
+
+            if (existingIndex === -1) {
+              nextData.push(option)
+            } else {
+              nextData[existingIndex] = option
+            }
+
+            return { ...current, data: nextData }
+          }
+        )
+
+        // Always refresh system-options to reconcile with persisted config.
+        await queryClient.invalidateQueries({ queryKey: ['system-options'] })
 
         // If updating frontend-display-related config, also refresh status
         if (STATUS_RELATED_KEYS.includes(variables.key)) {
-          queryClient.invalidateQueries({ queryKey: ['status'] })
+          await queryClient.invalidateQueries({ queryKey: ['status'] })
           try {
             window.localStorage.removeItem('status')
           } catch {

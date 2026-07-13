@@ -31,11 +31,13 @@ import { isArray } from '../utils/json-validators'
 type AmountOptionsVisualEditorProps = {
   value: string
   onChange: (value: string) => void
+  currencySymbol?: string
 }
 
 export function AmountOptionsVisualEditor({
   value,
   onChange,
+  currencySymbol = '$',
 }: AmountOptionsVisualEditorProps) {
   const { t } = useTranslation()
   const [newAmount, setNewAmount] = useState('')
@@ -112,7 +114,10 @@ export function AmountOptionsVisualEditor({
                 className='text-base'
                 copyable={false}
               >
-                <span className='font-mono'>${amount}</span>
+                <span className='font-mono'>
+                  {currencySymbol}
+                  {amount}
+                </span>
                 <Button
                   type='button'
                   variant='ghost'
@@ -123,7 +128,9 @@ export function AmountOptionsVisualEditor({
                     handleRemove(amount)
                   }}
                   className='hover:bg-muted-foreground/20 size-auto p-0.5'
-                  aria-label={t('Remove ${{amount}}', { amount })}
+                  aria-label={t('Remove {{amount}}', {
+                    amount: `${currencySymbol}${amount}`,
+                  })}
                 >
                   <X className='h-3.5 w-3.5' />
                 </Button>
