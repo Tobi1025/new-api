@@ -120,7 +120,9 @@ func GetStatus(c *gin.Context) {
 		"passkey_attachment":          passkeySetting.AttachmentPreference,
 		"setup":                       constant.Setup,
 		"user_agreement_enabled":      legalSetting.UserAgreement != "",
+		"user_agreement":              legalSetting.UserAgreement,
 		"privacy_policy_enabled":      legalSetting.PrivacyPolicy != "",
+		"privacy_policy":              legalSetting.PrivacyPolicy,
 		"checkin_enabled":             operation_setting.GetCheckinSetting().Enabled,
 	}
 

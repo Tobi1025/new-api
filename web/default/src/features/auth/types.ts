@@ -123,7 +123,9 @@ export interface SystemStatus {
     custom_currency_exchange_rate?: number
     demo_site_enabled?: boolean
     user_agreement_enabled?: boolean
+    user_agreement?: string
     privacy_policy_enabled?: boolean
+    privacy_policy?: string
     oauth_register_enabled?: boolean
     register_enabled?: boolean
     password_login_enabled?: boolean
@@ -166,7 +168,9 @@ export interface SystemStatus {
   custom_currency_exchange_rate?: number
   demo_site_enabled?: boolean
   user_agreement_enabled?: boolean
+  user_agreement?: string
   privacy_policy_enabled?: boolean
+  privacy_policy?: string
   oauth_register_enabled?: boolean
   register_enabled?: boolean
   password_login_enabled?: boolean

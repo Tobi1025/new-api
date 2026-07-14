@@ -84,17 +84,27 @@ function LegalLinks(props: { leadingSeparator?: boolean }) {
   const { status } = useStatus()
   const items: { key: string; label: string; href: string }[] = []
   if (status?.user_agreement_enabled) {
+    const userAgreement = status.user_agreement
     items.push({
       key: 'user-agreement',
       label: t('User Agreement'),
-      href: '/user-agreement',
+      href:
+        userAgreement?.startsWith('http://') ||
+        userAgreement?.startsWith('https://')
+          ? userAgreement
+          : '/user-agreement',
     })
   }
   if (status?.privacy_policy_enabled) {
+    const privacyPolicy = status.privacy_policy
     items.push({
       key: 'privacy-policy',
       label: t('Privacy Policy'),
-      href: '/privacy-policy',
+      href:
+        privacyPolicy?.startsWith('http://') ||
+        privacyPolicy?.startsWith('https://')
+          ? privacyPolicy
+          : '/privacy-policy',
     })
   }
   if (items.length === 0) {
@@ -109,12 +119,21 @@ function LegalLinks(props: { leadingSeparator?: boolean }) {
               ·
             </span>
           )}
-          <Link
-            to={item.href}
-            className='hover:text-foreground transition-colors duration-200'
-          >
-            {item.label}
-          </Link>
+          {item.href.startsWith('http') ? (
+            <a
+              href={item.href}
+              className='hover:text-foreground transition-colors duration-200'
+            >
+              {item.label}
+            </a>
+          ) : (
+            <Link
+              to={item.href}
+              className='hover:text-foreground transition-colors duration-200'
+            >
+              {item.label}
+            </Link>
+          )}
         </Fragment>
       ))}
     </>
@@ -272,14 +291,14 @@ export function Footer(props: FooterProps) {
           {/* Links columns */}
           {isDemoSiteMode && (
             <div className='grid grid-cols-3 gap-8 md:gap-16'>
-              {displayColumns.map((column, index) => (
-                <div key={index}>
+              {displayColumns.map((column) => (
+                <div key={column.title}>
                   <p className='text-muted-foreground/50 mb-3 text-xs font-medium tracking-wider uppercase'>
                     {t(column.title)}
                   </p>
                   <ul className='space-y-2.5'>
-                    {column.links.map((link, linkIndex) => (
-                      <li key={linkIndex}>
+                    {column.links.map((link) => (
+                      <li key={link.href}>
                         <FooterLinkItem link={link} />
                       </li>
                     ))}
