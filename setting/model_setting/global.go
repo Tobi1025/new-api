@@ -36,6 +36,10 @@ type GlobalSettings struct {
 	PassThroughRequestEnabled        bool                             `json:"pass_through_request_enabled"`
 	ThinkingModelBlacklist           []string                         `json:"thinking_model_blacklist"`
 	ChatCompletionsToResponsesPolicy ChatCompletionsToResponsesPolicy `json:"chat_completions_to_responses_policy"`
+	HomepageUpstreamServices         int                              `json:"homepage_upstream_services"`
+	HomepageModelBilling             int                              `json:"homepage_model_billing"`
+	HomepageAPIRoutes                int                              `json:"homepage_api_routes"`
+	HomepageSchedulingControls       int                              `json:"homepage_scheduling_controls"`
 }
 
 // 默认配置
@@ -49,6 +53,10 @@ var defaultOpenaiSettings = GlobalSettings{
 		Enabled:     false,
 		AllChannels: true,
 	},
+	HomepageUpstreamServices:   50,
+	HomepageModelBilling:       100,
+	HomepageAPIRoutes:          50,
+	HomepageSchedulingControls: 10,
 }
 
 // 全局实例

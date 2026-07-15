@@ -19,6 +19,8 @@ For commercial licensing, please contact support@quantumnous.com
 import { useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useStatus } from '@/hooks/use-status'
+
 interface CounterProps {
   end: number
   suffix?: string
@@ -96,12 +98,30 @@ interface StatItem {
 
 export function Stats(_props: StatsProps) {
   const { t } = useTranslation()
+  const { status } = useStatus()
+  const homepageStats = status?.homepage_stats
 
   const stats: StatItem[] = [
-    { end: 50, suffix: '+', label: t('upstream services integrated') },
-    { end: 100, suffix: '+', label: t('model billing support') },
-    { end: 50, suffix: '+', label: t('compatible API routes') },
-    { end: 10, suffix: '+', label: t('scheduling controls') },
+    {
+      end: homepageStats?.upstream_services ?? 50,
+      suffix: '+',
+      label: t('upstream services integrated'),
+    },
+    {
+      end: homepageStats?.model_billing ?? 100,
+      suffix: '+',
+      label: t('model billing support'),
+    },
+    {
+      end: homepageStats?.api_routes ?? 50,
+      suffix: '+',
+      label: t('compatible API routes'),
+    },
+    {
+      end: homepageStats?.scheduling_controls ?? 10,
+      suffix: '+',
+      label: t('scheduling controls'),
+    },
   ]
 
   return (

@@ -16,6 +16,7 @@ import (
 	"github.com/QuantumNous/new-api/oauth"
 	"github.com/QuantumNous/new-api/setting"
 	"github.com/QuantumNous/new-api/setting/console_setting"
+	"github.com/QuantumNous/new-api/setting/model_setting"
 	"github.com/QuantumNous/new-api/setting/operation_setting"
 	"github.com/QuantumNous/new-api/setting/system_setting"
 
@@ -93,6 +94,12 @@ func GetStatus(c *gin.Context) {
 		"password_login_enabled":        common.PasswordLoginEnabled,
 		"password_register_enabled":     common.PasswordRegisterEnabled,
 		"default_use_auto_group":        setting.DefaultUseAutoGroup,
+		"homepage_stats": gin.H{
+			"upstream_services":   model_setting.GetGlobalSettings().HomepageUpstreamServices,
+			"model_billing":       model_setting.GetGlobalSettings().HomepageModelBilling,
+			"api_routes":          model_setting.GetGlobalSettings().HomepageAPIRoutes,
+			"scheduling_controls": model_setting.GetGlobalSettings().HomepageSchedulingControls,
+		},
 
 		"usd_exchange_rate": operation_setting.USDExchangeRate,
 		"price":             operation_setting.Price,

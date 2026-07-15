@@ -54,6 +54,12 @@ const MODELS_SECTIONS = [
               settings['global.chat_completions_to_responses_policy'],
               '{}'
             ),
+            homepage_upstream_services:
+              settings['global.homepage_upstream_services'],
+            homepage_model_billing: settings['global.homepage_model_billing'],
+            homepage_api_routes: settings['global.homepage_api_routes'],
+            homepage_scheduling_controls:
+              settings['global.homepage_scheduling_controls'],
           },
           general_setting: {
             ping_interval_enabled:

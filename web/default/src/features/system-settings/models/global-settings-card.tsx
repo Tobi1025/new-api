@@ -92,6 +92,10 @@ const schema = z.object({
     pass_through_request_enabled: z.boolean(),
     thinking_model_blacklist: jsonString,
     chat_completions_to_responses_policy: jsonString,
+    homepage_upstream_services: z.coerce.number().int().min(0),
+    homepage_model_billing: z.coerce.number().int().min(0),
+    homepage_api_routes: z.coerce.number().int().min(0),
+    homepage_scheduling_controls: z.coerce.number().int().min(0),
   }),
   general_setting: z.object({
     ping_interval_enabled: z.boolean(),
@@ -106,6 +110,10 @@ type FlatGlobalModelSettings = {
   'global.pass_through_request_enabled': boolean
   'global.thinking_model_blacklist': string
   'global.chat_completions_to_responses_policy': string
+  'global.homepage_upstream_services': number
+  'global.homepage_model_billing': number
+  'global.homepage_api_routes': number
+  'global.homepage_scheduling_controls': number
   'general_setting.ping_interval_enabled': boolean
   'general_setting.ping_interval_seconds': number
 }
@@ -123,6 +131,11 @@ const flattenGlobalValues = (
     values.global.chat_completions_to_responses_policy,
     '{}'
   ),
+  'global.homepage_upstream_services': values.global.homepage_upstream_services,
+  'global.homepage_model_billing': values.global.homepage_model_billing,
+  'global.homepage_api_routes': values.global.homepage_api_routes,
+  'global.homepage_scheduling_controls':
+    values.global.homepage_scheduling_controls,
   'general_setting.ping_interval_enabled':
     values.general_setting.ping_interval_enabled,
   'general_setting.ping_interval_seconds':
@@ -348,6 +361,55 @@ export function GlobalSettingsCard({ defaultValues }: GlobalSettingsCardProps) {
                 </FormItem>
               )}
             />
+          </div>
+
+          <Separator />
+
+          <div className='space-y-4'>
+            <div>
+              <h3 className='text-base font-semibold'>
+                {t('Homepage Statistics')}
+              </h3>
+              <p className='text-muted-foreground text-sm'>
+                {t(
+                  'Configure the four statistics displayed on the default homepage.'
+                )}
+              </p>
+            </div>
+            <div className='grid gap-4 sm:grid-cols-2'>
+              {([
+                ['homepage_upstream_services', 'Homepage Upstream Services'],
+                ['homepage_model_billing', 'Homepage Model Billing'],
+                ['homepage_api_routes', 'Homepage API Routes'],
+                ['homepage_scheduling_controls', 'Homepage Scheduling Controls'],
+              ] as const).map(([name, label]) => (
+                <FormField
+                  key={name}
+                  control={form.control}
+                  name={`global.${name}`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t(label)}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          min={0}
+                          step={1}
+                          value={String(field.value ?? '')}
+                          onChange={(event) =>
+                            field.onChange(event.target.value)
+                          }
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
           </div>
 
           <Separator />

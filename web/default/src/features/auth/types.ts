@@ -131,6 +131,12 @@ export interface SystemStatus {
     password_login_enabled?: boolean
     password_register_enabled?: boolean
     custom_oauth_providers?: CustomOAuthProviderInfo[]
+    homepage_stats?: {
+      upstream_services?: number
+      model_billing?: number
+      api_routes?: number
+      scheduling_controls?: number
+    }
     [key: string]: unknown
   }
   // Allow direct access to common properties
@@ -176,6 +182,12 @@ export interface SystemStatus {
   password_login_enabled?: boolean
   password_register_enabled?: boolean
   custom_oauth_providers?: CustomOAuthProviderInfo[]
+  homepage_stats?: {
+    upstream_services?: number
+    model_billing?: number
+    api_routes?: number
+    scheduling_controls?: number
+  }
   [key: string]: unknown
 }
 

@@ -42,6 +42,11 @@ func isPositiveOptionValue(value string) bool {
 	return err == nil && floatValue > 0
 }
 
+func isNonNegativeIntegerOptionValue(value string) bool {
+	intValue, err := strconv.Atoi(strings.TrimSpace(value))
+	return err == nil && intValue >= 0
+}
+
 func collectModelNamesFromOptionValue(raw string, modelNames map[string]struct{}) {
 	if strings.TrimSpace(raw) == "" {
 		return
@@ -205,6 +210,11 @@ func UpdateOption(c *gin.Context) {
 				"message": "无法启用 Turnstile 校验，请先填入 Turnstile 校验相关配置信息！",
 			})
 
+			return
+		}
+	case "global.homepage_upstream_services", "global.homepage_model_billing", "global.homepage_api_routes", "global.homepage_scheduling_controls":
+		if !isNonNegativeIntegerOptionValue(option.Value.(string)) {
+			common.ApiErrorMsg(c, "首页统计数字必须是大于或等于 0 的整数")
 			return
 		}
 	case "TelegramOAuthEnabled":

@@ -37,6 +37,10 @@ const STATUS_RELATED_KEYS = [
   'general_setting.quota_display_type',
   'general_setting.custom_currency_symbol',
   'general_setting.custom_currency_exchange_rate',
+  'global.homepage_upstream_services',
+  'global.homepage_model_billing',
+  'global.homepage_api_routes',
+  'global.homepage_scheduling_controls',
 ]
 
 export function useUpdateOption() {

@@ -191,6 +191,10 @@ export type ModelSettings = {
   'global.pass_through_request_enabled': boolean
   'global.thinking_model_blacklist': string
   'global.chat_completions_to_responses_policy': string
+  'global.homepage_upstream_services': number
+  'global.homepage_model_billing': number
+  'global.homepage_api_routes': number
+  'global.homepage_scheduling_controls': number
   'general_setting.ping_interval_enabled': boolean
   'general_setting.ping_interval_seconds': number
   'gemini.safety_settings': string
