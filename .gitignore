@@ -5,6 +5,7 @@
 upload
 *.exe
 *.db
+one-api.db.local-test
 build
 *.db-journal
 logs
