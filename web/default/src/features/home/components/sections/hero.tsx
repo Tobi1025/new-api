@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useStatus } from '@/hooks/use-status'
 
+import { ApiBaseUrlHint } from '../api-base-url-hint'
 import { HeroTerminalDemo } from '../hero-terminal-demo'
 
 interface HeroProps {
@@ -132,6 +133,10 @@ export function Hero(props: HeroProps) {
               'Access a vast selection of models via a standard, unified API protocol. Power AI applications, manage digital assets, and connect the Future.'
             )}
           </p>
+
+          <div className='mt-7 w-full'>
+            <ApiBaseUrlHint />
+          </div>
 
           <div
             className='landing-animate-fade-up mt-8 flex flex-wrap items-center gap-3 opacity-0'
