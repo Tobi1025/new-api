@@ -89,7 +89,6 @@ export function Hero(props: HeroProps) {
         loop
         playsInline
         preload='metadata'
-        poster='/logo.png'
         aria-hidden='true'
       >
         <source src='/mokun-deep-sea.mp4' type='video/mp4' />
