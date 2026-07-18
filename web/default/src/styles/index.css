@@ -605,6 +605,81 @@ For commercial licensing, please contact support@quantumnous.com
   animation: terminal-demo-pulse 1.5s ease-in-out infinite;
 }
 
+/* ── Mokun deep-sea hero background ── */
+.home-force-dark {
+  color-scheme: dark;
+  background: #031017 !important;
+}
+
+.landing-hero-video {
+  isolation: isolate;
+  background: #031017;
+}
+
+.landing-hero-video-media {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.78) saturate(0.9) contrast(1.04);
+}
+
+.landing-hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(2, 12, 18, 0.72) 0%, rgba(2, 12, 18, 0.38) 48%, rgba(2, 12, 18, 0.16) 100%),
+    linear-gradient(180deg, rgba(1, 8, 13, 0.28) 0%, rgba(1, 8, 13, 0.08) 45%, rgba(1, 8, 13, 0.5) 100%);
+}
+
+.landing-hero-video h1,
+.landing-hero-video p,
+.landing-hero-video .text-foreground,
+.landing-hero-video .text-muted-foreground,
+.landing-hero-video .text-muted-foreground\/50,
+.landing-hero-video .text-muted-foreground\/60,
+.landing-hero-video .text-muted-foreground\/80 {
+  color: rgba(245, 250, 252, 0.94) !important;
+}
+
+.landing-hero-video .border-border\/40,
+.landing-hero-video .border-border\/50 {
+  border-color: rgba(190, 224, 232, 0.28);
+}
+
+.landing-hero-video .bg-muted\/15 {
+  background-color: rgba(6, 21, 28, 0.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-video-media {
+    display: none;
+  }
+
+  .landing-hero-video {
+    background:
+      radial-gradient(circle at 75% 30%, rgba(23, 103, 121, 0.34), transparent 42%),
+      #031017;
+  }
+}
+
+@media (max-width: 767px) {
+  .landing-hero-video-media {
+    object-position: 62% center;
+  }
+
+  .landing-hero-video-overlay {
+    background:
+      linear-gradient(180deg, rgba(2, 12, 18, 0.48) 0%, rgba(2, 12, 18, 0.3) 48%, rgba(1, 8, 13, 0.62) 100%),
+      linear-gradient(90deg, rgba(2, 12, 18, 0.62), rgba(2, 12, 18, 0.2));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .terminal-demo-blink,
   .terminal-demo-spin,

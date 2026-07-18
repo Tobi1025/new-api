@@ -81,7 +81,20 @@ export function Hero(props: HeroProps) {
   }
 
   return (
-    <section className='relative z-10 overflow-hidden px-6 pt-24 pb-16 md:pt-32 md:pb-24 lg:pt-36 lg:pb-28'>
+    <section className='landing-hero-video relative z-10 overflow-hidden px-6 pt-24 pb-16 md:pt-32 md:pb-24 lg:pt-36 lg:pb-28'>
+      <video
+        className='landing-hero-video-media'
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload='metadata'
+        poster='/logo.png'
+        aria-hidden='true'
+      >
+        <source src='/mokun-deep-sea.mp4' type='video/mp4' />
+      </video>
+      <div className='landing-hero-video-overlay' aria-hidden='true' />
       {/* Radial gradient background */}
       <div
         aria-hidden
